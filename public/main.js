@@ -29,6 +29,8 @@ function init() {
 
   // add listeners for mouse and keybaord events
   document.addEventListener("mousemove", handleMouseMove, false);
+  document.addEventListener("mousedown", handleMouseClick, false);
+  document.addEventListener("mouseup", handleMouseClick, false);
 
   // start a loop that will update objects positions
   // and render the scene on each frame
@@ -340,14 +342,20 @@ Airplane = function() {
 var airplane;
 function createPlane() {
   airplane = new Airplane();
-  airplane.mesh.scale.set(0.25, 0.25, 0.25);
+  airplane.mesh.scale.set(0.3, 0.3, 0.3);
   airplane.mesh.position.y = 200;
+  airplane.mesh.position.z = -100;
   scene.add(airplane.mesh);
 }
 
 // interactivity
 // -------------
 var mousePos = { x: 0, y: 0 };
+var propellerSpeed = 0.3;
+var defaultSea = 0.005;
+var seaSpeed = defaultSea;
+var defaultSky = 0.01;
+var skySpeed = defaultSky;
 // handle mouse movement
 function handleMouseMove(event) {
   // convert mouse position value to normalized -1 to 1
@@ -359,6 +367,19 @@ function handleMouseMove(event) {
   mousePos = { x: tx, y: ty };
 }
 
+function handleMouseClick(event) {
+  // change propeller speed
+  if (event.type === "mousedown") {
+    propellerSpeed = 0.7;
+    seaSpeed = defaultSea * 2;
+    skySpeed = defaultSky * 2;
+  } else {
+    propellerSpeed = 0.3;
+    seaSpeed = defaultSea;
+    skySpeed = defaultSky;
+  }
+}
+
 function updatePlane() {
   // move the airplane betwene -100 and 100 on the horizontal axis
   // and vetween 25 and 175 on the vertical axis
@@ -367,15 +388,15 @@ function updatePlane() {
   var targetX = normalize(mousePos.x, -1, 1, -100, 100);
   var targetY = normalize(mousePos.y, -1, 1, 125, 275);
 
-  console.log("current plane position");
-  console.log(targetX);
-  console.log(targetY);
+  // console.log("current plane position");
+  // console.log(targetX);
+  // console.log(targetY);
 
   // update the plane
   airplane.mesh.position.x = targetX;
   airplane.mesh.position.y = targetY;
   // and also don't forget to update the propeller
-  airplane.propeller.rotation.x += 0.3;
+  airplane.propeller.rotation.x += propellerSpeed;
 }
 
 function normalize(v, vmin, vmax, tmin, tmax) {
@@ -394,8 +415,8 @@ function normalize(v, vmin, vmax, tmin, tmax) {
 function loop() {
   // animation
   // rotate the propeller, sea and sky
-  sea.mesh.rotation.z += 0.005;
-  sky.mesh.rotation.z += 0.01;
+  sea.mesh.rotation.z += seaSpeed;
+  sky.mesh.rotation.z += skySpeed;
 
   // update plane on each frame
   updatePlane();
