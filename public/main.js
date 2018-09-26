@@ -1,5 +1,8 @@
 // https://tympanus.net/codrops/2016/04/26/the-aviator-animating-basic-3d-scene-threejs/
 
+// debug
+var debug = false;
+
 // settings
 // --------
 var Colors = {
@@ -31,6 +34,11 @@ function init() {
   document.addEventListener("mousemove", handleMouseMove, false);
   document.addEventListener("mousedown", handleMouseClick, false);
   document.addEventListener("mouseup", handleMouseClick, false);
+
+  // add listeners for touch events
+  document.addEventListener("touchmove", handleTouchMove, false);
+  document.addEventListener("touchstart", handleTouchClick, false);
+  document.addEventListener("touchend", handleTouchClick, false);
 
   // start a loop that will update objects positions
   // and render the scene on each frame
@@ -512,6 +520,54 @@ function handleMouseClick(event) {
     seaSpeed = defaultSea;
     skySpeed = defaultSky;
   }
+}
+
+function handleTouchMove(event) {
+  //horizontal
+  var tx = -1 + (event.touches[0].clientX / WIDTH) * 2;
+  // vertical
+  // y axis is inverted for 2d (y goes down instead of up)
+  var ty = 1 - ((event.touches[0].clientY - 80) / HEIGHT) * 2;
+  mousePos = { x: tx, y: ty };
+
+  if (debug) {
+    console.log("touch move!");
+    // console.log("touch event positioning");
+    // console.log("X and Y", event.clientX, event.clientY);
+    // console.log("h and w", HEIGHT, WIDTH);
+    // console.log("mousepos", mousePos);
+
+    // get the debug id
+    var debug_window = document.getElementById("debug");
+    // clear
+    debug_window.innerHTML = "";
+
+    // make output
+    var debug_ol_node = document.createElement("ol");
+
+    // turn list Object into list
+    var events = Object.values(event.touches);
+    // for every item in list, make a sentence with touch positions
+    events.forEach(touchevent => {
+      console.log(touchevent);
+      var debug_li_node = document.createElement("li");
+      var text_node = document.createTextNode(
+        `location: ${touchevent.clientX} , ${touchevent.clientY}`
+      );
+
+      // append text to list object, just because js
+      debug_li_node.appendChild(text_node);
+      // append to list
+      debug_ol_node.appendChild(debug_li_node);
+    });
+
+    // add list to window for debug and finger counting
+    debug_window.appendChild(debug_ol_node);
+  }
+}
+
+function handleTouchClick(event) {
+  console.log("touch click! not used in anything yet...");
 }
 
 function updatePlane() {
